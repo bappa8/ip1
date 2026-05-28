@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My IP Info</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="text-white">
+    <div id="ip-info" class="p-4">
+        <form id="ip-form" class="mb-4">
+            <label for="ip-input" class="block mb-2 font-bold text-gray-400">IPv4/IPv6 Address Lookup:</label>
+            <div class="flex gap-2">
+                <input type="text" id="ip-input" placeholder="Enter IP, or leave blank for your own" class="bg-gray-800 text-white p-2 rounded-lg flex-grow font-mono w-full">
+                <button type="submit" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-2 px-4 rounded-lg">Lookup</button>
+            </div>
+        </form>
+        <table id="info-table" class="font-mono text-lg">
+            <tbody>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>IPv4 Address</span><span>:</span></div></td><td id="ipv4" class="text-green-300">Loading...</td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>IPv6 Address</span><span>:</span></div></td><td id="ipv6" class="text-blue-300">Loading...</td></tr>
+                
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>City</span><span>:</span></div></td><td id="city" class="text-amber-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Region</span><span>:</span></div></td><td id="region" class="text-teal-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Country</span><span>:</span></div></td><td id="country" class="text-emerald-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Continent</span><span>:</span></div></td><td id="continent" class="text-cyan-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>ISP</span><span>:</span></div></td><td id="isp" class="text-rose-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Organization</span><span>:</span></div></td><td id="org" class="text-violet-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>ASN</span><span>:</span></div></td><td id="asn" class="text-lime-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Latitude</span><span>:</span></div></td><td id="latitude" class="text-orange-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Longitude</span><span>:</span></div></td><td id="longitude" class="text-yellow-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Capital</span><span>:</span></div></td><td id="capital" class="text-pink-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Calling Code</span><span>:</span></div></td><td id="calling_code" class="text-fuchsia-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Neighbours</span><span>:</span></div></td><td id="neighbours" class="text-gray-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Currency</span><span>:</span></div></td><td id="currency" class="text-indigo-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Timezone</span><span>:</span></div></td><td id="timezone" class="text-blue-300"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Timezone Name</span><span>:</span></div></td><td id="timezone_name" class="text-purple-400"></td></tr>
+                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>GMT Offset</span><span>:</span></div></td><td id="gmt_offset" class="text-purple-300"></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const fetchIpDetails = (ip) => {
+            // Clear previous details
+            const detailIds = ['city', 'region', 'country', 'continent', 'isp', 'org', 'asn', 'latitude', 'longitude', 'capital', 'calling_code', 'neighbours', 'currency', 'timezone', 'timezone_name', 'gmt_offset'];
+            detailIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '';
+            });
+
+            if (!ip) return;
+
+            const apiUrl = `https://ipwhois.app/json/${ip}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('API Error:', data.message);
+                        return;
+                    }
+                    document.getElementById('city').textContent = data.city || 'N/A';
+                    document.getElementById('region').textContent = data.region || 'N/A';
+                    document.getElementById('country').innerHTML = `${data.country || 'N/A'} <img class="w-5 h-auto inline-block ml-2" src="${data.country_flag || ''}" alt="Flag">`;
+                    document.getElementById('continent').textContent = data.continent || 'N/A';
+                    document.getElementById('isp').textContent = data.isp || 'N/A';
+                    document.getElementById('org').textContent = data.org || 'N/A';
+                    document.getElementById('asn').textContent = data.asn || 'N/A';
+                    document.getElementById('latitude').textContent = data.latitude || 'N/A';
+                    document.getElementById('longitude').textContent = data.longitude || 'N/A';
+                    document.getElementById('capital').textContent = data.country_capital || 'N/A';
+                    document.getElementById('calling_code').textContent = data.country_phone || 'N/A';
+                    document.getElementById('neighbours').textContent = data.country_neighbours || 'N/A';
+                    document.getElementById('currency').textContent = data.currency ? `${data.currency} (${data.currency_symbol})` : 'N/A';
+                    document.getElementById('timezone').textContent = data.timezone || 'N/A';
+                    document.getElementById('timezone_name').textContent = data.timezone_name || 'N/A';
+                    document.getElementById('gmt_offset').textContent = data.timezone_gmt || 'N/A';
+                })
+                .catch(error => {
+                    console.error('Error fetching IP details:', error);
+                });
+        };
+
+        const loadUserIps = () => {
+            document.getElementById('ipv4').textContent = 'Loading...';
+            document.getElementById('ipv6').textContent = 'Loading...';
+
+            // Fetch IPv4
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    const ipv4 = data.ip;
+                    document.getElementById('ipv4').textContent = ipv4;
+                    // Fetch details using the IPv4 address
+                    fetchIpDetails(ipv4);
+                })
+                .catch(error => {
+                    console.error('Error fetching IPv4:', error);
+                    document.getElementById('ipv4').textContent = 'Not available';
+                    // If IPv4 fails, try a general lookup for details
+                    fetchIpDetails('');
+                });
+
+            // Fetch IPv6
+            fetch('https://api6.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ipv6').textContent = data.ip;
+                })
+                .catch(error => {
+                    console.error('Error fetching IPv6:', error);
+                    document.getElementById('ipv6').textContent = 'Not available';
+                });
+        };
+
+        document.getElementById('ip-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const ipToLookup = document.getElementById('ip-input').value;
+            if (ipToLookup) {
+                if (ipToLookup.includes('.')) { // Basic IPv4 check
+                    document.getElementById('ipv4').textContent = ipToLookup;
+                    document.getElementById('ipv6').textContent = 'N/A';
+                } else { // Assume IPv6
+                    document.getElementById('ipv6').textContent = ipToLookup;
+                    document.getElementById('ipv4').textContent = 'N/A';
+                }
+                fetchIpDetails(ipToLookup);
+            } else {
+                // If submitted with empty, reload user's IPs
+                loadUserIps();
+            }
+        });
+
+        // Initial load
+        loadUserIps();
+    </script>
+</body>
+</html>
