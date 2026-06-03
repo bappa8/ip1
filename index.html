@@ -89,7 +89,7 @@
     color: #8a0303; /* blood red */
   }
 </style>
-<script type='text/javascript' nonce='ExrNW8AHG1R5fkrkqKsTQg==' src='https://arena.ai/dl3a6oiwxyXrWspI2wYXKoPnjZEL6D6SnVNl6_JsHCtICDxuTXuJAIMePxP-4hTa-QPd6MWv_fWoPpw2DOgbgiHDK0itq_Hv9bhNYvkHPzzPm38YS-BTsHNnlJxX9iIAurCyxLvHWItENzByYmUBnlaC4NqX9uO7cnUvianACl8qHv8vu5m7Hc57B4pyduog2NxAdgXp2FGg0tw8Ok4wvSMTj_ohphVh825Ek0xGkws-O2TiXE5z9g1KIfNriczkTrUwrOlsHHZhPH8vGojp5_JovECjGZCeUjqUu2GEx125VHixjTWTJKZ4baaISJAPJ6LJ67tFYOD-1BtZvCsXylBePkTHu6pLmrlbfRh_3K0lutmEM9iXcgNaFhmbFnEvttrOybRUDRn2_WRyZvObxM9-2ugT7s8rl-hsVMegD_gspL33I8f3x-Ht0maEGd97VmLYSyT2_2aEP6BWyUX0LcvykdSJsfSF-GNdcPEbgU52kvhARUXGu01sQFVnHvAtsGjlK8kTzM40s55VjU0Lqg'></script></head>
+<script type='text/javascript' nonce='RbTOGT4y3MBSvIBq4fsrjQ==' src='https://arena.ai/mSRyiRtJDljs3ocb3KCWOggNpyZYrLwbKZtgfv0tKvUjbA0GITSCwzbFxJb_Pdku9hcVVGn_ShGc6EAwCBQMZu3uAFoHFSDeFTi7lkznduEJp93YzFHDfPvZYWVM7ekuV-25iyuW_rWYgIdYgai0C7zkMADy_OxxPgdt3KAWsPOcZFjn45pLfqVDUJHUQ4cXmKP5sFedqEUL-CEKIAOSiBk7aPYXRS8WFhWjPvXrxpaWtxlnzexSlSLHAikchax1rjBDCa9XbS0MyvyFnMQjy39a_gX9xjv2Hy42I4iUtmg1pC1cF206xyKmZZBdizclz6t2Fj6cUKIYDTG02Av6_Jp7f1mCoSbR40sY0C4Gu1T2WFS-BEjpVUAOfbRTNi7RZf79UOONhgr0HODYxQuvddZDk4flXiN0Iw6Vl09v58nY5XaB5acDBbo9A84Q6cPanhFa3N2IeyVOOqCWNR_jL95TP9ks541nLLbHmTT_8eoST7qK6wUh3spGIyVMw2Uldllnf4yZ-AkjSNBzjbs-tA'></script></head>
 <body>
 <div class="container">
   <h1>Internet Speed Test</h1>
@@ -243,24 +243,34 @@
     }
   }
 
-  // Rough latency: measures round-trip time of a tiny request.
+  // Latency: time a tiny resource load. Uses Image() / JSONP which are NOT
+  // subject to CORS, so this works even on restrictive networks and file://.
+  function pingOnce() {
+    return new Promise((resolve) => {
+      const start = performance.now();
+      let done = false;
+      const finish = (ok) => {
+        if (done) return;
+        done = true;
+        resolve(ok ? (performance.now() - start) : null);
+      };
+      // A small, cache-busted image from a fast CDN. onload OR onerror both
+      // mean the round-trip completed (we don't care about the content).
+      const img = new Image();
+      const timer = setTimeout(() => finish(false), 5000);
+      img.onload = img.onerror = () => { clearTimeout(timer); finish(true); };
+      img.src = 'https://www.cloudflare.com/favicon.ico?cb=' + Date.now() + Math.random();
+    });
+  }
+
   async function measurePing() {
     const iterations = 5;
     let total = 0, success = 0;
+    // One warm-up request (DNS/TLS) that we don't count, for a fairer number.
+    await pingOnce();
     for (let i = 0; i < iterations; i++) {
-      try {
-        const start = performance.now();
-        await fetch('https://www.cloudflare.com/cdn-cgi/trace?' + Date.now(), { cache: 'no-store' });
-        total += performance.now() - start;
-        success++;
-      } catch (e) {
-        try {
-          const start = performance.now();
-          await fetch('https://api.ipify.org?format=json&' + Date.now(), { cache: 'no-store' });
-          total += performance.now() - start;
-          success++;
-        } catch (e2) { /* skip */ }
-      }
+      const t = await pingOnce();
+      if (t !== null) { total += t; success++; }
     }
     return success > 0 ? total / success : 0;
   }
@@ -360,7 +370,7 @@
     results.style.display = 'none';
     try {
       const ping = await measurePing();
-      pingResult.textContent = Math.round(ping) + ' ms';
+      pingResult.textContent = ping > 0 ? Math.round(ping) + ' ms' : 'n/a';
       if (type === 'download') await testDownload();
       else await testUpload();
       results.style.display = 'block';
@@ -381,7 +391,7 @@
     try {
       status.textContent = 'Measuring ping...';
       const ping = await measurePing();
-      pingResult.textContent = Math.round(ping) + ' ms';
+      pingResult.textContent = ping > 0 ? Math.round(ping) + ' ms' : 'n/a';
       await testDownload();
       await testUpload();
       results.style.display = 'block';
@@ -400,5 +410,5 @@
 
   fetchIPInfo();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0601e7e48388642',t:'MTc4MDUwNDYxMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0602a5b5f5298c5',t:'MTc4MDUwNTA5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
