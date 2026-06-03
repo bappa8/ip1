@@ -1,483 +1,404 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internet Speed Test</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-        }
-
-        .container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 450px;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .ip-info {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .ip-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .ip-row:last-child {
-            border-bottom: none;
-        }
-
-        .ip-label {
-            color: #aaa;
-        }
-
-        .ip-value {
-            color: #00d2ff;
-            font-weight: bold;
-            text-align: right;
-            max-width: 60%;
-            word-break: break-all;
-        }
-
-        .speed-display {
-            margin: 20px 0;
-            padding: 30px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
-        }
-
-        .speed-value {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
-        }
-
-        .speed-unit {
-            font-size: 1.2rem;
-            color: #aaa;
-        }
-
-        .speed-type {
-            font-size: 1rem;
-            margin-top: 10px;
-            color: #3a7bd5;
-        }
-
-        .results {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            font-size: 0.9rem;
-        }
-
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .result-item:last-child {
-            border-bottom: none;
-        }
-
-        .result-label {
-            color: #aaa;
-        }
-
-        .result-value {
-            color: #00ff88;
-            font-weight: bold;
-        }
-
-        .btn {
-            margin: 10px 5px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-download {
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            color: white;
-        }
-
-        .btn-upload {
-            background: linear-gradient(90deg, #ff6b6b, #ffa500);
-            color: white;
-        }
-
-        .btn-both {
-            background: linear-gradient(90deg, #00ff88, #00d2ff);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .status {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-
-        .loader {
-            display: none;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #00ff88;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internet Speed Test</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .container {
+    text-align: center;
+    padding: 40px;
+    width: 90%; max-width: 450px;
+  }
+  h1 {
+    font-size: 1.5rem; margin-bottom: 25px;
+    color: #1565c0;
+  }
+  .ip-info {
+    padding: 15px; margin-bottom: 20px; font-size: 1.05rem;
+  }
+  .ip-row {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .ip-row:last-child { border-bottom: none; }
+  .ip-label { font-size: 1.1rem; font-weight: bold; }
+  /* Colorful labels */
+  .ip-row:nth-child(1) .ip-label { color: #cc5500; }  /* IP Address - deep orange (match value) */
+  .ip-row:nth-child(2) .ip-label { color: #008000; }  /* Country - green (match value) */
+  .ip-row:nth-child(3) .ip-label { color: #8e24aa; }  /* City - purple (match value) */
+  .ip-row:nth-child(4) .ip-label { color: #00838f; }  /* ISP - teal (match value) */
+  .ip-value {
+    font-weight: bold; text-align: right;
+    max-width: 60%; word-break: break-all;
+  }
+  /* Distinct colors per field value */
+  #ipAddress { color: #cc5500; font-weight: 900; }   /* IP Address - deep orange, extra bold */
+  #country   { color: #008000; }   /* Country - green */
+  #city      { color: #8e24aa; }   /* City - purple */
+  #isp       { color: #00838f; }   /* ISP - teal */
+  .speed-display {
+    margin: 20px 0; padding: 30px;
+  }
+  .speed-value {
+    font-size: 3rem; font-weight: bold; color: #00a152;
+  }
+  .speed-unit { font-size: 1.2rem; color: #555; }
+  .speed-type { font-size: 1rem; margin-top: 10px; color: #3a7bd5; }
+  .results {
+    margin-top: 15px; padding: 15px; font-size: 0.9rem;
+  }
+  .result-item {
+    display: flex; justify-content: space-between; padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .result-item:last-child { border-bottom: none; }
+  .result-label { color: #333; font-weight: bold; }
+  .result-item:nth-child(1) .result-label,
+  #downloadResult { color: #1565c0; }  /* Download - blue */
+  .result-item:nth-child(2) .result-label,
+  #uploadResult   { color: #6a1b9a; }  /* Upload - purple */
+  .result-item:nth-child(3) .result-label,
+  #pingResult     { color: #00897b; }  /* Ping - teal */
+  .result-value { font-weight: bold; }
+  .btn {
+    margin: 10px 5px; padding: 12px 24px; border: 2px solid currentColor;
+    border-radius: 8px; background: transparent;
+    font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;
+  }
+  .btn-download { color: #1565c0; }
+  .btn-upload { color: #e65100; }
+  .btn-both { color: #00a152; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .status { margin-top: 20px; font-size: 0.9rem; color: #555; }
+  .loader {
+    display: none; width: 40px; height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.15); border-top-color: #00a152;
+    border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .copyright {
+    margin-top: 25px; font-size: 0.85rem; font-weight: bold;
+    color: #8a0303; /* blood red */
+  }
+</style>
+<script type='text/javascript' nonce='ExrNW8AHG1R5fkrkqKsTQg==' src='https://arena.ai/dl3a6oiwxyXrWspI2wYXKoPnjZEL6D6SnVNl6_JsHCtICDxuTXuJAIMePxP-4hTa-QPd6MWv_fWoPpw2DOgbgiHDK0itq_Hv9bhNYvkHPzzPm38YS-BTsHNnlJxX9iIAurCyxLvHWItENzByYmUBnlaC4NqX9uO7cnUvianACl8qHv8vu5m7Hc57B4pyduog2NxAdgXp2FGg0tw8Ok4wvSMTj_ohphVh825Ek0xGkws-O2TiXE5z9g1KIfNriczkTrUwrOlsHHZhPH8vGojp5_JovECjGZCeUjqUu2GEx125VHixjTWTJKZ4baaISJAPJ6LJ67tFYOD-1BtZvCsXylBePkTHu6pLmrlbfRh_3K0lutmEM9iXcgNaFhmbFnEvttrOybRUDRn2_WRyZvObxM9-2ugT7s8rl-hsVMegD_gspL33I8f3x-Ht0maEGd97VmLYSyT2_2aEP6BWyUX0LcvykdSJsfSF-GNdcPEbgU52kvhARUXGu01sQFVnHvAtsGjlK8kTzM40s55VjU0Lqg'></script></head>
 <body>
-    <div class="container">
-        <h1>Internet Speed Test</h1>
+<div class="container">
+  <h1>Internet Speed Test</h1>
 
-        <div class="ip-info">
-            <div class="ip-row">
-                <span class="ip-label">IP Address:</span>
-                <span class="ip-value" id="ipAddress">Loading...</span>
-            </div>
-            <div class="ip-row">
-                <span class="ip-label">Country:</span>
-                <span class="ip-value" id="country">Loading...</span>
-            </div>
-            <div class="ip-row">
-                <span class="ip-label">City:</span>
-                <span class="ip-value" id="city">Loading...</span>
-            </div>
-            <div class="ip-row">
-                <span class="ip-label">ISP:</span>
-                <span class="ip-value" id="isp">Loading...</span>
-            </div>
-        </div>
+  <div class="ip-info">
+    <div class="ip-row"><span class="ip-label">IP Address:</span><span class="ip-value" id="ipAddress">Loading...</span></div>
+    <div class="ip-row"><span class="ip-label">Country:</span><span class="ip-value" id="country">Loading...</span></div>
+    <div class="ip-row"><span class="ip-label">City:</span><span class="ip-value" id="city">Loading...</span></div>
+    <div class="ip-row"><span class="ip-label">ISP:</span><span class="ip-value" id="isp">Loading...</span></div>
+  </div>
 
-        <div class="speed-display">
-            <div class="speed-value" id="speedValue">0.00</div>
-            <div class="speed-unit">Mbps</div>
-            <div class="speed-type" id="speedType">Ready to test</div>
-        </div>
+  <div class="speed-display">
+    <div class="speed-value" id="speedValue">0.00</div>
+    <div class="speed-unit">Mbps</div>
+    <div class="speed-type" id="speedType">Ready to test</div>
+  </div>
 
-        <div class="results" id="results" style="display: none;">
-            <div class="result-item">
-                <span class="result-label">Download:</span>
-                <span class="result-value" id="downloadResult">--</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Upload:</span>
-                <span class="result-value" id="uploadResult">--</span>
-            </div>
-            <div class="result-item">
-                <span class="result-label">Ping:</span>
-                <span class="result-value" id="pingResult">--</span>
-            </div>
-        </div>
+  <div class="results" id="results" style="display: none;">
+    <div class="result-item"><span class="result-label">Download:</span><span class="result-value" id="downloadResult">--</span></div>
+    <div class="result-item"><span class="result-label">Upload:</span><span class="result-value" id="uploadResult">--</span></div>
+    <div class="result-item"><span class="result-label">Ping:</span><span class="result-value" id="pingResult">--</span></div>
+  </div>
 
-        <div class="loader" id="loader"></div>
+  <div class="loader" id="loader"></div>
 
-        <div>
-            <button class="btn btn-download" id="btnDownload" onclick="testSpeed('download')">Download</button>
-            <button class="btn btn-upload" id="btnUpload" onclick="testSpeed('upload')">Upload</button>
-            <button class="btn btn-both" id="btnBoth" onclick="testBoth()">Both</button>
-        </div>
+  <div>
+    <button class="btn btn-download" id="btnDownload">Download</button>
+    <button class="btn btn-upload" id="btnUpload">Upload</button>
+    <button class="btn btn-both" id="btnBoth">Both</button>
+  </div>
 
-        <div class="status" id="status">Click a button to start test</div>
-    </div>
+  <div class="status" id="status">Click a button to start test</div>
 
-    <script>
-        const speedValue = document.getElementById('speedValue');
-        const speedType = document.getElementById('speedType');
-        const status = document.getElementById('status');
-        const loader = document.getElementById('loader');
-        const results = document.getElementById('results');
-        const downloadResult = document.getElementById('downloadResult');
-        const uploadResult = document.getElementById('uploadResult');
-        const pingResult = document.getElementById('pingResult');
-        const btnDownload = document.getElementById('btnDownload');
-        const btnUpload = document.getElementById('btnUpload');
-        const btnBoth = document.getElementById('btnBoth');
-        const ipAddressEl = document.getElementById('ipAddress');
-        const countryEl = document.getElementById('country');
-        const cityEl = document.getElementById('city');
-        const ispEl = document.getElementById('isp');
+  <div class="copyright">&copy; Bappa Ghosh. All rights reserved.</div>
+</div>
 
-        function setButtonsDisabled(disabled) {
-            btnDownload.disabled = disabled;
-            btnUpload.disabled = disabled;
-            btnBoth.disabled = disabled;
+<script>
+  const speedValue   = document.getElementById('speedValue');
+  const speedType    = document.getElementById('speedType');
+  const status       = document.getElementById('status');
+  const loader       = document.getElementById('loader');
+  const results      = document.getElementById('results');
+  const downloadResult = document.getElementById('downloadResult');
+  const uploadResult   = document.getElementById('uploadResult');
+  const pingResult     = document.getElementById('pingResult');
+  const btnDownload  = document.getElementById('btnDownload');
+  const btnUpload    = document.getElementById('btnUpload');
+  const btnBoth      = document.getElementById('btnBoth');
+  const ipAddressEl  = document.getElementById('ipAddress');
+  const countryEl    = document.getElementById('country');
+  const cityEl       = document.getElementById('city');
+  const ispEl        = document.getElementById('isp');
+
+  function setButtonsDisabled(disabled) {
+    btnDownload.disabled = disabled;
+    btnUpload.disabled   = disabled;
+    btnBoth.disabled     = disabled;
+  }
+
+  function updateDisplay(value, type) {
+    speedValue.textContent = value.toFixed(2);
+    if (type) speedType.textContent = type;
+  }
+
+  // JSONP helper — bypasses CORS entirely by loading the API response
+  // as a <script>. Works even from file:// and on restrictive networks.
+  function jsonp(url, cbParam) {
+    return new Promise((resolve, reject) => {
+      const cbName = 'jsonp_cb_' + Math.random().toString(36).slice(2);
+      const sep = url.includes('?') ? '&' : '?';
+      const script = document.createElement('script');
+      const timer = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, 8000);
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      window[cbName] = (data) => { cleanup(); resolve(data); };
+      script.onerror = () => { cleanup(); reject(new Error('script error')); };
+      script.src = url + sep + cbParam + '=' + cbName;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function fetchIPInfo() {
+    // 1) Try JSONP providers first (immune to CORS, work on file://).
+    const jsonpProviders = [
+      {
+        name: 'ip-api.com',
+        run: () => jsonp('http://ip-api.com/json/?fields=status,country,city,isp,query', 'callback'),
+        parse: d => (d && d.status === 'success') ? {
+          ip: d.query, country: d.country, city: d.city, isp: d.isp
+        } : null
+      },
+      {
+        name: 'geojs.io',
+        run: () => jsonp('https://get.geojs.io/v1/ip/geo.js', 'callback'),
+        parse: d => (d && d.ip) ? {
+          ip: d.ip, country: d.country, city: d.city,
+          isp: d.organization_name || d.organization || '-'
+        } : null
+      }
+    ];
+
+    for (const p of jsonpProviders) {
+      try {
+        const info = p.parse(await p.run());
+        if (info && info.ip) {
+          ipAddressEl.textContent = info.ip;
+          countryEl.textContent   = info.country || '-';
+          cityEl.textContent      = info.city || '-';
+          ispEl.textContent       = info.isp || '-';
+          return;
         }
+      } catch (e) { /* try next */ }
+    }
 
-        function updateDisplay(value, type) {
-            speedValue.textContent = value.toFixed(2);
-            speedType.textContent = type;
+    // 2) Fallback to CORS fetch providers (work when served over http/https).
+    const fetchProviders = [
+      { url: 'https://ipwho.is/',
+        parse: d => (d && d.success) ? { ip: d.ip, country: d.country, city: d.city, isp: d.connection ? d.connection.isp : (d.isp || '-') } : null },
+      { url: 'https://ipapi.co/json/',
+        parse: d => (d && d.ip && !d.error) ? { ip: d.ip, country: d.country_name, city: d.city, isp: d.org } : null }
+    ];
+
+    for (const p of fetchProviders) {
+      try {
+        const res = await fetch(p.url, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const info = p.parse(await res.json());
+        if (info && info.ip) {
+          ipAddressEl.textContent = info.ip;
+          countryEl.textContent   = info.country || '-';
+          cityEl.textContent      = info.city || '-';
+          ispEl.textContent       = info.isp || '-';
+          return;
         }
+      } catch (e) { /* try next */ }
+    }
 
-        async function fetchIPInfo() {
-            try {
-                const response = await fetch('https://ipwho.is/');
-                const data = await response.json();
-                if (data.success) {
-                    ipAddressEl.textContent = data.ip;
-                    countryEl.textContent = data.country;
-                    cityEl.textContent = data.city;
-                    ispEl.textContent = data.connection ? data.connection.isp : '-';
-                } else {
-                    throw new Error(data.message);
-                }
-            } catch (e) {
-                try {
-                    const response = await fetch('https://api.ipify.org?format=json');
-                    const data = await response.json();
-                    ipAddressEl.textContent = data.ip;
-                    countryEl.textContent = '-';
-                    cityEl.textContent = '-';
-                    ispEl.textContent = '-';
-                } catch (e2) {
-                    ipAddressEl.textContent = 'Unable to fetch';
-                    countryEl.textContent = 'Unable to fetch';
-                    cityEl.textContent = 'Unable to fetch';
-                    ispEl.textContent = 'Unable to fetch';
-                }
-            }
+    // 3) Last resort: at least show the IP via JSONP (ipify supports it).
+    try {
+      const d = await jsonp('https://api.ipify.org?format=jsonp', 'callback');
+      ipAddressEl.textContent = d.ip;
+      countryEl.textContent = '-'; cityEl.textContent = '-'; ispEl.textContent = '-';
+    } catch (e2) {
+      ipAddressEl.textContent = 'Unable to fetch';
+      countryEl.textContent   = 'Unable to fetch';
+      cityEl.textContent      = 'Unable to fetch';
+      ispEl.textContent       = 'Unable to fetch';
+    }
+  }
+
+  // Rough latency: measures round-trip time of a tiny request.
+  async function measurePing() {
+    const iterations = 5;
+    let total = 0, success = 0;
+    for (let i = 0; i < iterations; i++) {
+      try {
+        const start = performance.now();
+        await fetch('https://www.cloudflare.com/cdn-cgi/trace?' + Date.now(), { cache: 'no-store' });
+        total += performance.now() - start;
+        success++;
+      } catch (e) {
+        try {
+          const start = performance.now();
+          await fetch('https://api.ipify.org?format=json&' + Date.now(), { cache: 'no-store' });
+          total += performance.now() - start;
+          success++;
+        } catch (e2) { /* skip */ }
+      }
+    }
+    return success > 0 ? total / success : 0;
+  }
+
+  // Download: measures ACTUAL bytes received via streaming, with live updates.
+  async function testDownload() {
+    status.textContent = 'Testing download speed...';
+    speedType.textContent = 'Download';
+
+    // Cloudflare speed endpoint serves arbitrary-sized payloads with proper CORS.
+    const bytesToFetch = 25 * 1024 * 1024; // 25 MB
+    const url = 'https://speed.cloudflare.com/__down?bytes=' + bytesToFetch + '&t=' + Date.now();
+
+    const startTime = performance.now();
+    let received = 0;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      if (!response.body) {
+        // Fallback for browsers without streaming: read whole blob.
+        const blob = await response.blob();
+        received = blob.size;
+      } else {
+        const reader = response.body.getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          received += value.length;
+          const elapsed = (performance.now() - startTime) / 1000;
+          if (elapsed > 0) updateDisplay((received * 8) / elapsed / 1e6, 'Download Speed');
         }
+      }
+      clearTimeout(timeoutId);
+    } catch (e) {
+      // continue with whatever we received before the error/timeout
+    }
 
-        async function measurePing() {
-            const iterations = 5;
-            let totalPing = 0;
-            let success = 0;
+    const duration = (performance.now() - startTime) / 1000;
+    if (duration > 0.2 && received > 0) {
+      const speedMbps = (received * 8) / duration / 1e6;
+      updateDisplay(speedMbps, 'Download Speed');
+      downloadResult.textContent = speedMbps.toFixed(2) + ' Mbps';
+      return speedMbps;
+    }
+    status.textContent = 'Download test failed. Try again.';
+    downloadResult.textContent = 'failed';
+    return 0;
+  }
 
-            for (let i = 0; i < iterations; i++) {
-                try {
-                    const start = performance.now();
-                    await fetch('https://api.ipify.org?format=json&' + Date.now(), { cache: 'no-store' });
-                    const end = performance.now();
-                    totalPing += (end - start);
-                    success++;
-                } catch (e) {
-                    try {
-                        const start = performance.now();
-                        await fetch('https://httpbin.org/get?' + Date.now(), { cache: 'no-store' });
-                        const end = performance.now();
-                        totalPing += (end - start);
-                        success++;
-                    } catch (e2) {}
-                }
-            }
+  // Upload: posts a random payload to Cloudflare's upload endpoint.
+  async function testUpload() {
+    status.textContent = 'Testing upload speed...';
+    speedType.textContent = 'Upload';
 
-            return success > 0 ? totalPing / success : 0;
-        }
+    const size = 10 * 1024 * 1024; // 10 MB
+    const data = new Uint8Array(size);
+    // Fill quickly in chunks (crypto.getRandomValues caps at 65536 bytes per call).
+    for (let off = 0; off < size; off += 65536) {
+      crypto.getRandomValues(data.subarray(off, Math.min(off + 65536, size)));
+    }
 
-        async function testDownload() {
-            status.textContent = 'Testing download speed...';
-            speedType.textContent = 'Download';
+    const startTime = performance.now();
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      await fetch('https://speed.cloudflare.com/__up', {
+        method: 'POST',
+        body: data,
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+    } catch (e) {
+      status.textContent = 'Upload test failed. Try again.';
+      uploadResult.textContent = 'failed';
+      return 0;
+    }
 
-            const testUrls = [
-                { url: 'https://proof.ovh.net/files/10Mb.dat', size: 10 * 1024 * 1024 },
-                { url: 'https://proof.ovh.net/files/100Mb.dat', size: 100 * 1024 * 1024 }
-            ];
+    const duration = (performance.now() - startTime) / 1000;
+    if (duration > 0.2) {
+      const speedMbps = (size * 8) / duration / 1e6;
+      updateDisplay(speedMbps, 'Upload Speed');
+      uploadResult.textContent = speedMbps.toFixed(2) + ' Mbps';
+      return speedMbps;
+    }
+    status.textContent = 'Upload test failed. Try again.';
+    uploadResult.textContent = 'failed';
+    return 0;
+  }
 
-            let totalBytes = 0;
-            let totalTime = 0;
+  async function testSpeed(type) {
+    setButtonsDisabled(true);
+    loader.style.display = 'block';
+    status.textContent = 'Starting test...';
+    speedValue.textContent = '...';
+    results.style.display = 'none';
+    try {
+      const ping = await measurePing();
+      pingResult.textContent = Math.round(ping) + ' ms';
+      if (type === 'download') await testDownload();
+      else await testUpload();
+      results.style.display = 'block';
+      if (!/failed/.test(status.textContent)) status.textContent = 'Test completed!';
+    } catch (error) {
+      status.textContent = 'Error: ' + error.message;
+    }
+    loader.style.display = 'none';
+    setButtonsDisabled(false);
+  }
 
-            for (const test of testUrls) {
-                status.textContent = 'Downloading ' + (test.size / 1024 / 1024) + 'MB...';
-                const startTime = performance.now();
+  async function testBoth() {
+    setButtonsDisabled(true);
+    loader.style.display = 'block';
+    status.textContent = 'Starting full test...';
+    speedValue.textContent = '...';
+    results.style.display = 'none';
+    try {
+      status.textContent = 'Measuring ping...';
+      const ping = await measurePing();
+      pingResult.textContent = Math.round(ping) + ' ms';
+      await testDownload();
+      await testUpload();
+      results.style.display = 'block';
+      status.textContent = 'Full test completed!';
+    } catch (error) {
+      status.textContent = 'Error: ' + error.message;
+    }
+    loader.style.display = 'none';
+    setButtonsDisabled(false);
+  }
 
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
-                    const response = await fetch(test.url + '?nocache=' + Date.now(), {
-                        cache: 'no-store',
-                        signal: controller.signal
-                    });
-                    await response.blob();
-                    clearTimeout(timeoutId);
-                } catch (e) {
-                    continue;
-                }
+  // Event listeners (replaces inline onclick attributes).
+  btnDownload.addEventListener('click', () => testSpeed('download'));
+  btnUpload.addEventListener('click', () => testSpeed('upload'));
+  btnBoth.addEventListener('click', testBoth);
 
-                const endTime = performance.now();
-                const duration = (endTime - startTime) / 1000;
-
-                if (duration > 0.5) {
-                    totalBytes += test.size;
-                    totalTime += duration;
-                }
-            }
-
-            if (totalTime > 0) {
-                const speedMbps = (totalBytes * 8) / totalTime / 1000000;
-                updateDisplay(speedMbps, 'Download Speed');
-                downloadResult.textContent = speedMbps.toFixed(2) + ' Mbps';
-                return speedMbps;
-            }
-
-            status.textContent = 'Download test failed. Try again.';
-            return 0;
-        }
-
-        async function testUpload() {
-            status.textContent = 'Testing upload speed...';
-            speedType.textContent = 'Upload';
-
-            const uploadSizes = [
-                1 * 1024 * 1024,
-                5 * 1024 * 1024,
-                10 * 1024 * 1024
-            ];
-
-            let totalBytes = 0;
-            let totalTime = 0;
-
-            for (const size of uploadSizes) {
-                status.textContent = 'Uploading ' + (size / 1024 / 1024) + 'MB...';
-                const data = new ArrayBuffer(size);
-                const view = new Uint8Array(data);
-                for (let i = 0; i < size; i++) {
-                    view[i] = Math.random() * 256;
-                }
-
-                const startTime = performance.now();
-
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
-                    await fetch('https://httpbin.org/post', {
-                        method: 'POST',
-                        body: data,
-                        signal: controller.signal
-                    });
-                    clearTimeout(timeoutId);
-                } catch (e) {
-                    continue;
-                }
-
-                const endTime = performance.now();
-                const duration = (endTime - startTime) / 1000;
-
-                if (duration > 0.5) {
-                    totalBytes += size;
-                    totalTime += duration;
-                }
-            }
-
-            if (totalTime > 0) {
-                const speedMbps = (totalBytes * 8) / totalTime / 1000000;
-                updateDisplay(speedMbps, 'Upload Speed');
-                uploadResult.textContent = speedMbps.toFixed(2) + ' Mbps';
-                return speedMbps;
-            }
-
-            status.textContent = 'Upload test failed. Try again.';
-            return 0;
-        }
-
-        async function testSpeed(type) {
-            setButtonsDisabled(true);
-            loader.style.display = 'block';
-            status.textContent = 'Starting test...';
-            speedValue.textContent = '...';
-            results.style.display = 'none';
-
-            try {
-                const ping = await measurePing();
-                pingResult.textContent = Math.round(ping) + ' ms';
-
-                if (type === 'download') {
-                    await testDownload();
-                } else {
-                    await testUpload();
-                }
-
-                results.style.display = 'block';
-                status.textContent = 'Test completed!';
-            } catch (error) {
-                status.textContent = 'Error: ' + error.message;
-            }
-
-            loader.style.display = 'none';
-            setButtonsDisabled(false);
-        }
-
-        async function testBoth() {
-            setButtonsDisabled(true);
-            loader.style.display = 'block';
-            status.textContent = 'Starting full test...';
-            speedValue.textContent = '...';
-            results.style.display = 'none';
-
-            try {
-                status.textContent = 'Measuring ping...';
-                const ping = await measurePing();
-                pingResult.textContent = Math.round(ping) + ' ms';
-
-                await testDownload();
-                await testUpload();
-
-                results.style.display = 'block';
-                status.textContent = 'Full test completed!';
-            } catch (error) {
-                status.textContent = 'Error: ' + error.message;
-            }
-
-            loader.style.display = 'none';
-            setButtonsDisabled(false);
-        }
-
-        fetchIPInfo();
-    </script>
-</body>
+  fetchIPInfo();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0601e7e48388642',t:'MTc4MDUwNDYxMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
