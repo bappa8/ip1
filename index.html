@@ -3,135 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My IP Info</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Internet Speed Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 450px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ip-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .ip-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ip-row:last-child {
+            border-bottom: none;
+        }
+
+        .ip-label {
+            color: #aaa;
+        }
+
+        .ip-value {
+            color: #00d2ff;
+            font-weight: bold;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-all;
+        }
+
+        .speed-display {
+            margin: 20px 0;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+
+        .speed-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .speed-unit {
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+
+        .speed-type {
+            font-size: 1rem;
+            margin-top: 10px;
+            color: #3a7bd5;
+        }
+
+        .results {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #aaa;
+        }
+
+        .result-value {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .btn {
+            margin: 10px 5px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download {
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            color: white;
+        }
+
+        .btn-upload {
+            background: linear-gradient(90deg, #ff6b6b, #ffa500);
+            color: white;
+        }
+
+        .btn-both {
+            background: linear-gradient(90deg, #00ff88, #00d2ff);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #00ff88;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body class="text-white">
-    <div id="ip-info" class="p-4">
-        <form id="ip-form" class="mb-4">
-            <label for="ip-input" class="block mb-2 font-bold text-gray-400">IPv4/IPv6 Address Lookup:</label>
-            <div class="flex gap-2">
-                <input type="text" id="ip-input" placeholder="Enter IP, or leave blank for your own" class="bg-gray-800 text-white p-2 rounded-lg flex-grow font-mono w-full">
-                <button type="submit" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-2 px-4 rounded-lg">Lookup</button>
+<body>
+    <div class="container">
+        <h1>Internet Speed Test</h1>
+
+        <div class="ip-info">
+            <div class="ip-row">
+                <span class="ip-label">IP Address:</span>
+                <span class="ip-value" id="ipAddress">Loading...</span>
             </div>
-        </form>
-        <table id="info-table" class="font-mono text-lg">
-            <tbody>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>IPv4 Address</span><span>:</span></div></td><td id="ipv4" class="text-green-300">Loading...</td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>IPv6 Address</span><span>:</span></div></td><td id="ipv6" class="text-blue-300">Loading...</td></tr>
-                
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>City</span><span>:</span></div></td><td id="city" class="text-amber-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Region</span><span>:</span></div></td><td id="region" class="text-teal-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Country</span><span>:</span></div></td><td id="country" class="text-emerald-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Continent</span><span>:</span></div></td><td id="continent" class="text-cyan-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>ISP</span><span>:</span></div></td><td id="isp" class="text-rose-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Organization</span><span>:</span></div></td><td id="org" class="text-violet-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>ASN</span><span>:</span></div></td><td id="asn" class="text-lime-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Latitude</span><span>:</span></div></td><td id="latitude" class="text-orange-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Longitude</span><span>:</span></div></td><td id="longitude" class="text-yellow-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Capital</span><span>:</span></div></td><td id="capital" class="text-pink-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Calling Code</span><span>:</span></div></td><td id="calling_code" class="text-fuchsia-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Neighbours</span><span>:</span></div></td><td id="neighbours" class="text-gray-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Currency</span><span>:</span></div></td><td id="currency" class="text-indigo-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Timezone</span><span>:</span></div></td><td id="timezone" class="text-blue-300"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>Timezone Name</span><span>:</span></div></td><td id="timezone_name" class="text-purple-400"></td></tr>
-                <tr><td class="font-bold text-gray-400 py-1 pr-2"><div class="flex justify-between w-40"><span>GMT Offset</span><span>:</span></div></td><td id="gmt_offset" class="text-purple-300"></td></tr>
-            </tbody>
-        </table>
+            <div class="ip-row">
+                <span class="ip-label">Country:</span>
+                <span class="ip-value" id="country">Loading...</span>
+            </div>
+            <div class="ip-row">
+                <span class="ip-label">City:</span>
+                <span class="ip-value" id="city">Loading...</span>
+            </div>
+            <div class="ip-row">
+                <span class="ip-label">ISP:</span>
+                <span class="ip-value" id="isp">Loading...</span>
+            </div>
+        </div>
+
+        <div class="speed-display">
+            <div class="speed-value" id="speedValue">0.00</div>
+            <div class="speed-unit">Mbps</div>
+            <div class="speed-type" id="speedType">Ready to test</div>
+        </div>
+
+        <div class="results" id="results" style="display: none;">
+            <div class="result-item">
+                <span class="result-label">Download:</span>
+                <span class="result-value" id="downloadResult">--</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Upload:</span>
+                <span class="result-value" id="uploadResult">--</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Ping:</span>
+                <span class="result-value" id="pingResult">--</span>
+            </div>
+        </div>
+
+        <div class="loader" id="loader"></div>
+
+        <div>
+            <button class="btn btn-download" id="btnDownload" onclick="testSpeed('download')">Download</button>
+            <button class="btn btn-upload" id="btnUpload" onclick="testSpeed('upload')">Upload</button>
+            <button class="btn btn-both" id="btnBoth" onclick="testBoth()">Both</button>
+        </div>
+
+        <div class="status" id="status">Click a button to start test</div>
     </div>
+
     <script>
-        const fetchIpDetails = (ip) => {
-            // Clear previous details
-            const detailIds = ['city', 'region', 'country', 'continent', 'isp', 'org', 'asn', 'latitude', 'longitude', 'capital', 'calling_code', 'neighbours', 'currency', 'timezone', 'timezone_name', 'gmt_offset'];
-            detailIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = '';
-            });
+        const speedValue = document.getElementById('speedValue');
+        const speedType = document.getElementById('speedType');
+        const status = document.getElementById('status');
+        const loader = document.getElementById('loader');
+        const results = document.getElementById('results');
+        const downloadResult = document.getElementById('downloadResult');
+        const uploadResult = document.getElementById('uploadResult');
+        const pingResult = document.getElementById('pingResult');
+        const btnDownload = document.getElementById('btnDownload');
+        const btnUpload = document.getElementById('btnUpload');
+        const btnBoth = document.getElementById('btnBoth');
+        const ipAddressEl = document.getElementById('ipAddress');
+        const countryEl = document.getElementById('country');
+        const cityEl = document.getElementById('city');
+        const ispEl = document.getElementById('isp');
 
-            if (!ip) return;
+        function setButtonsDisabled(disabled) {
+            btnDownload.disabled = disabled;
+            btnUpload.disabled = disabled;
+            btnBoth.disabled = disabled;
+        }
 
-            const apiUrl = `https://ipwhois.app/json/${ip}`;
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('API Error:', data.message);
-                        return;
-                    }
-                    document.getElementById('city').textContent = data.city || 'N/A';
-                    document.getElementById('region').textContent = data.region || 'N/A';
-                    document.getElementById('country').innerHTML = `${data.country || 'N/A'} <img class="w-5 h-auto inline-block ml-2" src="${data.country_flag || ''}" alt="Flag">`;
-                    document.getElementById('continent').textContent = data.continent || 'N/A';
-                    document.getElementById('isp').textContent = data.isp || 'N/A';
-                    document.getElementById('org').textContent = data.org || 'N/A';
-                    document.getElementById('asn').textContent = data.asn || 'N/A';
-                    document.getElementById('latitude').textContent = data.latitude || 'N/A';
-                    document.getElementById('longitude').textContent = data.longitude || 'N/A';
-                    document.getElementById('capital').textContent = data.country_capital || 'N/A';
-                    document.getElementById('calling_code').textContent = data.country_phone || 'N/A';
-                    document.getElementById('neighbours').textContent = data.country_neighbours || 'N/A';
-                    document.getElementById('currency').textContent = data.currency ? `${data.currency} (${data.currency_symbol})` : 'N/A';
-                    document.getElementById('timezone').textContent = data.timezone || 'N/A';
-                    document.getElementById('timezone_name').textContent = data.timezone_name || 'N/A';
-                    document.getElementById('gmt_offset').textContent = data.timezone_gmt || 'N/A';
-                })
-                .catch(error => {
-                    console.error('Error fetching IP details:', error);
-                });
-        };
+        function updateDisplay(value, type) {
+            speedValue.textContent = value.toFixed(2);
+            speedType.textContent = type;
+        }
 
-        const loadUserIps = () => {
-            document.getElementById('ipv4').textContent = 'Loading...';
-            document.getElementById('ipv6').textContent = 'Loading...';
-
-            // Fetch IPv4
-            fetch('https://api.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    const ipv4 = data.ip;
-                    document.getElementById('ipv4').textContent = ipv4;
-                    // Fetch details using the IPv4 address
-                    fetchIpDetails(ipv4);
-                })
-                .catch(error => {
-                    console.error('Error fetching IPv4:', error);
-                    document.getElementById('ipv4').textContent = 'Not available';
-                    // If IPv4 fails, try a general lookup for details
-                    fetchIpDetails('');
-                });
-
-            // Fetch IPv6
-            fetch('https://api6.ipify.org?format=json')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('ipv6').textContent = data.ip;
-                })
-                .catch(error => {
-                    console.error('Error fetching IPv6:', error);
-                    document.getElementById('ipv6').textContent = 'Not available';
-                });
-        };
-
-        document.getElementById('ip-form').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const ipToLookup = document.getElementById('ip-input').value;
-            if (ipToLookup) {
-                if (ipToLookup.includes('.')) { // Basic IPv4 check
-                    document.getElementById('ipv4').textContent = ipToLookup;
-                    document.getElementById('ipv6').textContent = 'N/A';
-                } else { // Assume IPv6
-                    document.getElementById('ipv6').textContent = ipToLookup;
-                    document.getElementById('ipv4').textContent = 'N/A';
+        async function fetchIPInfo() {
+            try {
+                const response = await fetch('https://ipwho.is/');
+                const data = await response.json();
+                if (data.success) {
+                    ipAddressEl.textContent = data.ip;
+                    countryEl.textContent = data.country;
+                    cityEl.textContent = data.city;
+                    ispEl.textContent = data.connection ? data.connection.isp : '-';
+                } else {
+                    throw new Error(data.message);
                 }
-                fetchIpDetails(ipToLookup);
-            } else {
-                // If submitted with empty, reload user's IPs
-                loadUserIps();
+            } catch (e) {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    ipAddressEl.textContent = data.ip;
+                    countryEl.textContent = '-';
+                    cityEl.textContent = '-';
+                    ispEl.textContent = '-';
+                } catch (e2) {
+                    ipAddressEl.textContent = 'Unable to fetch';
+                    countryEl.textContent = 'Unable to fetch';
+                    cityEl.textContent = 'Unable to fetch';
+                    ispEl.textContent = 'Unable to fetch';
+                }
             }
-        });
+        }
 
-        // Initial load
-        loadUserIps();
+        async function measurePing() {
+            const iterations = 5;
+            let totalPing = 0;
+            let success = 0;
+
+            for (let i = 0; i < iterations; i++) {
+                try {
+                    const start = performance.now();
+                    await fetch('https://api.ipify.org?format=json&' + Date.now(), { cache: 'no-store' });
+                    const end = performance.now();
+                    totalPing += (end - start);
+                    success++;
+                } catch (e) {
+                    try {
+                        const start = performance.now();
+                        await fetch('https://httpbin.org/get?' + Date.now(), { cache: 'no-store' });
+                        const end = performance.now();
+                        totalPing += (end - start);
+                        success++;
+                    } catch (e2) {}
+                }
+            }
+
+            return success > 0 ? totalPing / success : 0;
+        }
+
+        async function testDownload() {
+            status.textContent = 'Testing download speed...';
+            speedType.textContent = 'Download';
+
+            const testUrls = [
+                { url: 'https://proof.ovh.net/files/10Mb.dat', size: 10 * 1024 * 1024 },
+                { url: 'https://proof.ovh.net/files/100Mb.dat', size: 100 * 1024 * 1024 }
+            ];
+
+            let totalBytes = 0;
+            let totalTime = 0;
+
+            for (const test of testUrls) {
+                status.textContent = 'Downloading ' + (test.size / 1024 / 1024) + 'MB...';
+                const startTime = performance.now();
+
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    const response = await fetch(test.url + '?nocache=' + Date.now(), {
+                        cache: 'no-store',
+                        signal: controller.signal
+                    });
+                    await response.blob();
+                    clearTimeout(timeoutId);
+                } catch (e) {
+                    continue;
+                }
+
+                const endTime = performance.now();
+                const duration = (endTime - startTime) / 1000;
+
+                if (duration > 0.5) {
+                    totalBytes += test.size;
+                    totalTime += duration;
+                }
+            }
+
+            if (totalTime > 0) {
+                const speedMbps = (totalBytes * 8) / totalTime / 1000000;
+                updateDisplay(speedMbps, 'Download Speed');
+                downloadResult.textContent = speedMbps.toFixed(2) + ' Mbps';
+                return speedMbps;
+            }
+
+            status.textContent = 'Download test failed. Try again.';
+            return 0;
+        }
+
+        async function testUpload() {
+            status.textContent = 'Testing upload speed...';
+            speedType.textContent = 'Upload';
+
+            const uploadSizes = [
+                1 * 1024 * 1024,
+                5 * 1024 * 1024,
+                10 * 1024 * 1024
+            ];
+
+            let totalBytes = 0;
+            let totalTime = 0;
+
+            for (const size of uploadSizes) {
+                status.textContent = 'Uploading ' + (size / 1024 / 1024) + 'MB...';
+                const data = new ArrayBuffer(size);
+                const view = new Uint8Array(data);
+                for (let i = 0; i < size; i++) {
+                    view[i] = Math.random() * 256;
+                }
+
+                const startTime = performance.now();
+
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    await fetch('https://httpbin.org/post', {
+                        method: 'POST',
+                        body: data,
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                } catch (e) {
+                    continue;
+                }
+
+                const endTime = performance.now();
+                const duration = (endTime - startTime) / 1000;
+
+                if (duration > 0.5) {
+                    totalBytes += size;
+                    totalTime += duration;
+                }
+            }
+
+            if (totalTime > 0) {
+                const speedMbps = (totalBytes * 8) / totalTime / 1000000;
+                updateDisplay(speedMbps, 'Upload Speed');
+                uploadResult.textContent = speedMbps.toFixed(2) + ' Mbps';
+                return speedMbps;
+            }
+
+            status.textContent = 'Upload test failed. Try again.';
+            return 0;
+        }
+
+        async function testSpeed(type) {
+            setButtonsDisabled(true);
+            loader.style.display = 'block';
+            status.textContent = 'Starting test...';
+            speedValue.textContent = '...';
+            results.style.display = 'none';
+
+            try {
+                const ping = await measurePing();
+                pingResult.textContent = Math.round(ping) + ' ms';
+
+                if (type === 'download') {
+                    await testDownload();
+                } else {
+                    await testUpload();
+                }
+
+                results.style.display = 'block';
+                status.textContent = 'Test completed!';
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+            }
+
+            loader.style.display = 'none';
+            setButtonsDisabled(false);
+        }
+
+        async function testBoth() {
+            setButtonsDisabled(true);
+            loader.style.display = 'block';
+            status.textContent = 'Starting full test...';
+            speedValue.textContent = '...';
+            results.style.display = 'none';
+
+            try {
+                status.textContent = 'Measuring ping...';
+                const ping = await measurePing();
+                pingResult.textContent = Math.round(ping) + ' ms';
+
+                await testDownload();
+                await testUpload();
+
+                results.style.display = 'block';
+                status.textContent = 'Full test completed!';
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+            }
+
+            loader.style.display = 'none';
+            setButtonsDisabled(false);
+        }
+
+        fetchIPInfo();
     </script>
 </body>
 </html>
